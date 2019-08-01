@@ -1,3 +1,4 @@
+require('dotenv').config();
 let app = require("express")();
 let dynamoRoute = require("./dynamo");
 

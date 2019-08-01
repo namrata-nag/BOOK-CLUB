@@ -1,8 +1,11 @@
 let AWS = require("aws-sdk");
 let express = require("express");
 let router = express.Router();
-let config = require("./config/dev");
-AWS.config.update(config);
+AWS.config.update({
+  region: process.env.REGION,
+  accessKeyId: process.env.ACCESSKEYID,
+  secretAccessKey: process.env.SECRETACCESSKEY,
+});
 
 let docClient = new AWS.DynamoDB.DocumentClient();
 let table = "sports";
@@ -17,7 +20,7 @@ router.get("/fetch", (req, res) => {
     TableName: "bookStore",
     Key: {
       customerId: customerId,
-      customerName:"Rahul Ranjan"
+      customerName: "Rahul Ranjan",
     },
   };
 
@@ -26,7 +29,7 @@ router.get("/fetch", (req, res) => {
       console.log(err);
       handleError(err, res);
     } else {
-        console.log(data,"data")
+      console.log(data, "data");
       handleSuccess(data, res);
     }
   });
