@@ -1,6 +1,5 @@
 let AWS = require("aws-sdk");
 let express = require("express");
-let router = express.Router();
 AWS.config.update({
   region: process.env.REGION,
   accessKeyId: process.env.ACCESSKEYID,
@@ -8,38 +7,34 @@ AWS.config.update({
 });
 
 let docClient = new AWS.DynamoDB.DocumentClient();
-let table = "sports";
+let db =new AWS.DynamoDB;
 
-router.get("/get", (req, res) => {
-  res.json({ message: "get request", statusCode: 200, data: "result" });
-});
-
-router.get("/fetch", (req, res) => {
-  let customerId = 1026;
-  let params = {
-    TableName: "bookStore",
-    Key: {
-      customerId: customerId,
-      customerName: "Rahul Ranjan",
-    },
-  };
-
-  docClient.get(params, function(err, data) {
+const dbQuery = {};
+dbQuery.getUsersData = (query, callback) => {
+  docClient.scan(query, (err, data) => {
     if (err) {
-      console.log(err);
-      handleError(err, res);
-    } else {
-      console.log(data, "data");
-      handleSuccess(data, res);
+      return callback(400, { error: "something is error" });
     }
+    return callback(200, data);
   });
-});
-function handleError(err, res) {
-  res.json({ message: "server side error", statusCode: 500, error: err });
-}
+};
 
-function handleSuccess(data, res) {
-  res.json({ message: "success", statusCode: 200, data: data });
-}
+dbQuery.getUser = (query, callback) => {
+  db.getItem(query, (err, data) => {
+    if (err) {
+      return callback(400, { error: "something is error" });
+    }
+    return callback(200, data);
+  });
+};
 
-module.exports = router;
+dbQuery.addUser = (query, callback) => {
+  docClient.batchWrite(query, (err, data) => {
+    if (err) {
+      return callback(400, { error: "something is error" });
+    }
+    return callback(200, data);
+  });
+};
+
+module.exports = dbQuery;

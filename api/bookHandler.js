@@ -1,13 +1,12 @@
 const express = require("express");
 const router = express.Router();
-const testDynamo = require("../db/bookDB");
-// let dynamoRoute = require("../db/dynamo");
+const bookDB = require("../db/bookDB");
 router.get("/getBook", (req, res) => {
   console.log("booookkkk", req.body);
   const query = {
     TableName: "bookTable"
   };
-  testDynamo.getBookData(query, (statusCode, data) => {
+  bookDB.getBookData(query, (statusCode, data) => {
     console.log("get booookkkk list", data);
     res.sendStatus(statusCode, data);
   });
@@ -32,7 +31,7 @@ router.post("/addBook", (req, res) => {
       ]
     }
   };
-  testDynamo.addBook(query, (statusCode, data) => {
+  bookDB.addBook(query, (statusCode, data) => {
     console.log("booookkkk",data );
     res.sendStatus(statusCode,data);
   });
