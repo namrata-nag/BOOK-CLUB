@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const testDynamo = require("../db/testDynamo");
+const testDynamo = require("../db/bookDB");
 // let dynamoRoute = require("../db/dynamo");
 router.get("/getBook", (req, res) => {
   console.log("booookkkk", req.body);
