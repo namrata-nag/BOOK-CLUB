@@ -1,6 +1,5 @@
 require("dotenv").config();
 let app = require("express")();
-let dynamoRoute = require("./db/userDB");
 var bodyparser = require("body-parser");
 const user = require("./api/userHandler");
 const book = require("./api/bookHandler");
@@ -12,7 +11,6 @@ app.use(bodyparser.urlencoded({ extended: false }));
 app.use(bodyparser.json());
 app.use(myLogger);
 
-app.use("/", dynamoRoute);
 app.use("/user", user);
 app.use("/book", book);
 
