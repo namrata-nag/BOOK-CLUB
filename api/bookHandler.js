@@ -2,6 +2,8 @@ const express = require("express");
 const router = express.Router();
 const bookDB = require("../db/bookDB");
 const userDB = require("../db/userDB");
+
+//fetch book based on role
 router.get("/getBook", (req, res) => {
   const reqData = req.body;
   const userQuery = {
