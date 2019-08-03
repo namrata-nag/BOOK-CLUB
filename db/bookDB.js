@@ -11,7 +11,7 @@ let docClient = new AWS.DynamoDB.DocumentClient();
 const dbQuery = {};
 
 dbQuery.getBookData = (query, callback) => {
-  docClient.scan(query, (err, data) => {
+  return docClient.scan(query, (err, data) => {
     if (err) {
       return callback(400, { error: "something is error" });
     }
@@ -19,13 +19,12 @@ dbQuery.getBookData = (query, callback) => {
   });
 };
 dbQuery.addBook = (query, callback) => {
-    docClient.batchWrite(query, (err, data) => {
-      if (err) {
-        return callback(400, { error: "something is error" });
-      }
-      return callback(200, data);
-    });
-  };
-  
+  return docClient.batchWrite(query, (err, data) => {
+    if (err) {
+      return callback(400, { error: "something is error" });
+    }
+    return callback(200, data);
+  });
+};
 
 module.exports = dbQuery;

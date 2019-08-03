@@ -20,7 +20,7 @@ dbQuery.getUsersData = (query, callback) => {
 };
 
 dbQuery.getUser = (query, callback) => {
-  db.getItem(query, (err, data) => {
+  return docClient.get(query, (err, data) => {
     if (err) {
       return callback(400, { error: "something is error" });
     }
