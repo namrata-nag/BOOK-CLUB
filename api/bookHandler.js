@@ -4,7 +4,7 @@ const bookDB = require("../db/bookDB");
 const userDB = require("../db/userDB");
 
 //fetch book based on role
-router.get("/getBooks", (req, res) => {
+router.post("/getBooks", (req, res) => {
   const reqData = req.body;
   const userQuery = {
     TableName: "userTable",
