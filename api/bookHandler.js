@@ -4,7 +4,7 @@ const bookDB = require("../db/bookDB");
 const userDB = require("../db/userDB");
 
 //fetch book based on role
-router.get("/getBook", (req, res) => {
+router.get("/getBooks", (req, res) => {
   const reqData = req.body;
   const userQuery = {
     TableName: "userTable",
@@ -12,44 +12,24 @@ router.get("/getBook", (req, res) => {
       user: reqData.id
     }
   };
-  const bookQuery = {
+  let bookQuery = {
     TableName: "bookTable"
   };
-  Promise.all([
-    new Promise((resolve, reject) => {
-      userDB.getUser(userQuery, (statusCode, data) => {
-        if (statusCode != 200) return reject(data);
-        return resolve(data);
-      });
-    }),
-    new Promise((resolve, reject) => {
-      bookDB.getBookData(bookQuery, (statusCode, data) => {
-        if (statusCode != 200) return reject(data);
-        return resolve(data);
-      });
-    })
-  ])
-    .then(([userData, bookData]) => {
-      const user = userData["Item"];
-      const book = bookData["Items"];
-      if (user.role == 2) {
-        const index = ["bookName", "availability"];
-        const filteredBook = book.map(data => {
-          return index.reduce((acc, key) => {
-            acc[key] = data[key];
-            return acc;
-          }, {});
-        });
-
-        return res.json({ data: filteredBook });
-      } else if (user.role == 1) {
-        return res.json({ data: book });
-      }
-      return res.send(404);
-    })
-    .catch(err => {s
-      res.json(err);
+  userDB.getUser(userQuery, (statusCode, userData) => {
+    if (statusCode != 200) res.send(statusCode);
+    const user = userData["Item"];
+    if (user.role == 2) {
+      bookQuery={
+        ...bookQuery,
+        AttributesToGet: [ "bookName","availability" ],
+    };
+    
+    }
+    bookDB.getBookData(bookQuery, (statusCode, bookData) => {
+      if (statusCode != 200) return res.send(statusCode)
+      res.send(bookData.Items)
     });
+  });
 });
 
 router.post("/addBook", (req, res) => {
