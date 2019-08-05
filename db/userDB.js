@@ -7,7 +7,7 @@ AWS.config.update({
 });
 
 let docClient = new AWS.DynamoDB.DocumentClient();
-let db =new AWS.DynamoDB;
+let db = new AWS.DynamoDB();
 
 const dbQuery = {};
 dbQuery.getUsersData = (query, callback) => {
@@ -29,7 +29,7 @@ dbQuery.getUser = (query, callback) => {
 };
 
 dbQuery.addUser = (query, callback) => {
-  docClient.batchWrite(query, (err, data) => {
+  db.putItem(query, (err, data) => {
     if (err) {
       return callback(400, { error: "something is error" });
     }

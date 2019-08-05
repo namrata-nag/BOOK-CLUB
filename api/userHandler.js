@@ -8,39 +8,29 @@ router.get("/getUsers", (req, res) => {
     TableName: "userTable",
   };
   userDB.getUsersData(query, (statusCode, data) => {
-    res.json( data);
+    res.json(data);
   });
 });
 
 router.post("/getUser", (req, res) => {
-    const query = {
-        AttributesToGet: [
-            "role"
-          ],
-        TableName: "userTable",
-        Key:{
-            "user":{"S":req.body.user}
-        }
-      };
-    userDB.getUser(query, (statusCode, data) => {
-      res.send( data);
-    });
+  const query = {
+    AttributesToGet: ["role"],
+    TableName: "userTable",
+    Key: {
+      user: { S: req.body.user },
+    },
+  };
+  userDB.getUser(query, (statusCode, data) => {
+    res.send(data);
   });
+});
 
 router.post("/addUser", (req, res) => {
   const query = {
-    RequestItems: {
-      userTable: [
-        //params for the topics item
-        {
-          PostRequest: {
-            Item: {
-              user: req.body.user,
-              role: 2,
-            },
-          },
-        },
-      ],
+    TableName: "userTable",
+    Item: {
+      user: { S: req.body.user },
+      role: { N: "2" },
     },
   };
   userDB.addUser(query, (statusCode, data) => {
