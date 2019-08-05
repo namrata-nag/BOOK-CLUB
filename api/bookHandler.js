@@ -26,8 +26,8 @@ router.post("/getBooks", (req, res) => {
     
     }
     bookDB.getBookData(bookQuery, (statusCode, bookData) => {
-      if (statusCode != 200) return res.send(statusCode)
-      res.send(bookData.Items)
+      if (statusCode != 200) return res.send(statusCode);
+      res.send(bookData.Items);
     });
   });
 });
@@ -54,6 +54,17 @@ router.post("/addBook", (req, res) => {
   bookDB.addBook(query, (statusCode, data) => {
     res.sendStatus(statusCode, data);
   });
+});
+
+router.patch("/updateBook/:id", (req, res) => {
+  const updateValue = res.body;
+  const query = {
+    TableName: "bookTable",
+    Key: { id: req.params.id },
+    UpdateExpression:
+      "set bookName = bookName, issuedTo=issuedTo, availability:availability,",
+    ExpressionAttributeValues: {}
+  };
 });
 
 module.exports = router;

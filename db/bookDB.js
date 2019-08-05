@@ -27,4 +27,9 @@ dbQuery.addBook = (query, callback) => {
   });
 };
 
+dbQuery.updateBook = (query, callback) => {
+  return docClient.update(query, (err, data) => {
+    
+  });
+};
 module.exports = dbQuery;
