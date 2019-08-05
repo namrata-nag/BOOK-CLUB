@@ -13,7 +13,7 @@ router.post("/getBooks", (req, res) => {
     }
   };
   let bookQuery = {
-    TableName: "bookTable"
+    TableName: "booksTable"
   };
   userDB.getUser(userQuery, (statusCode, userData) => {
     if (statusCode != 200) res.send(statusCode);
@@ -21,7 +21,7 @@ router.post("/getBooks", (req, res) => {
     if (user.role == 2) {
       bookQuery={
         ...bookQuery,
-        AttributesToGet: [ "bookName","availability" ],
+        AttributesToGet: [ "bookId","availability","bookName" ],
     };
     
     }
@@ -35,7 +35,7 @@ router.post("/getBooks", (req, res) => {
 router.post("/addBook", (req, res) => {
   const query = {
     RequestItems: {
-      bookTable: [
+      booksTable: [
         //params for the topics item
         {
           PutRequest: {

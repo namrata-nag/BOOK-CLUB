@@ -36,7 +36,7 @@ router.post("/addUser", (req, res) => {
           PostRequest: {
             Item: {
               user: req.body.user,
-              role: 1,
+              role: 2,
             },
           },
         },
