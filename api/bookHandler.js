@@ -3,8 +3,23 @@ const router = express.Router();
 const bookDB = require("../db/bookDB");
 const userDB = require("../db/userDB");
 
+const generateUpdateExpression = arr => {
+  let objKeys = Object.keys(arr);
+  return objKeys.map(str => {
+    return `${str} = :${str}`;
+  });
+};
+const generateExpressionValue = arr => {
+  let objKeys = Object.keys(arr);
+  return objKeys.reduce((acc, obj) => {
+    acc[`:${obj}`] = arr[obj];
+    return acc;
+  }, {});
+};
+
 //fetch book based on role
 router.post("/getBooks", (req, res) => {
+  console.log("1 knjkjkbjbkj");
   const reqData = req.body;
   const userQuery = {
     TableName: "userTable",
@@ -15,15 +30,15 @@ router.post("/getBooks", (req, res) => {
   let bookQuery = {
     TableName: "booksTable"
   };
+  console.log("2 knjkjkbjbkj");
   userDB.getUser(userQuery, (statusCode, userData) => {
     if (statusCode != 200) res.send(statusCode);
     const user = userData["Item"];
     if (user.role == 2) {
-      bookQuery={
-        ...bookQuery,
-        AttributesToGet: [ "bookId","availability","bookName" ],
-    };
-    
+      bookQuery = {
+        TableName: "booksTable",
+        AttributesToGet: ["bookId", "availability", "bookName"]
+      };
     }
     bookDB.getBookData(bookQuery, (statusCode, bookData) => {
       if (statusCode != 200) return res.send(statusCode);
@@ -57,14 +72,21 @@ router.post("/addBook", (req, res) => {
 });
 
 router.patch("/updateBook/:id", (req, res) => {
-  const updateValue = res.body;
+  console.log("svdhg", req.body, req.params.id);
+  const updateValue = req.body;
+  let UpdateExpression = generateUpdateExpression(req.body);
+  let ExpressionAttributeValues = generateExpressionValue(req.body);
   const query = {
-    TableName: "bookTable",
-    Key: { id: req.params.id },
-    UpdateExpression:
-      "set bookName = bookName, issuedTo=issuedTo, availability:availability,",
-    ExpressionAttributeValues: {}
+    TableName: "booksTable",
+    Key: { bookId: parseInt(req.params.id) },
+    UpdateExpression: `set ${UpdateExpression}`,
+    ExpressionAttributeValues: ExpressionAttributeValues
   };
+  console.log("vhehvdfevfve", query);
+  bookDB.updateBook(query, (statusCode, data) => {
+    if (statusCode != 200) return res.sendStatus(statusCode);
+    res.sendStatus(statusCode);
+  });
 });
 
 module.exports = router;
