@@ -19,7 +19,6 @@ const generateExpressionValue = arr => {
 
 //fetch book based on role
 router.post("/getBooks", (req, res) => {
-  console.log("1 knjkjkbjbkj");
   const reqData = req.body;
   const userQuery = {
     TableName: "userTable",
@@ -54,13 +53,7 @@ router.post("/addBook", (req, res) => {
         //params for the topics item
         {
           PutRequest: {
-            Item: {
-              bookName: "The mistBorn",
-              issuedTill: 23232,
-              issuedTo: "Lovleen@gmail.com",
-              issuedAt: 77887,
-              availability: false
-            }
+            Item: req.body
           }
         }
       ]
