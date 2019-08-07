@@ -2,20 +2,7 @@ const express = require("express");
 const router = express.Router();
 const bookDB = require("../db/bookDB");
 const userDB = require("../db/userDB");
-
-const generateUpdateExpression = arr => {
-  let objKeys = Object.keys(arr);
-  return objKeys.map(str => {
-    return `${str} = :${str}`;
-  });
-};
-const generateExpressionValue = arr => {
-  let objKeys = Object.keys(arr);
-  return objKeys.reduce((acc, obj) => {
-    acc[`:${obj}`] = arr[obj];
-    return acc;
-  }, {});
-};
+const serializeQuery = require("./util.js");
 
 //fetch book based on role
 router.post("/getBooks", (req, res) => {
@@ -67,8 +54,8 @@ router.post("/addBook", (req, res) => {
 router.patch("/updateBook/:id", (req, res) => {
   console.log("svdhg", req.body, req.params.id);
   const updateValue = req.body;
-  let UpdateExpression = generateUpdateExpression(req.body);
-  let ExpressionAttributeValues = generateExpressionValue(req.body);
+  let UpdateExpression = serializeQuery.generateUpdateExpression(req.body);
+  let ExpressionAttributeValues = serializeQuery.generateExpressionValue(req.body);
   const query = {
     TableName: "booksTable",
     Key: { bookId: parseInt(req.params.id) },
