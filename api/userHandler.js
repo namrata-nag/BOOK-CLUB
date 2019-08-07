@@ -1,8 +1,8 @@
 const express = require("express");
 const router = express.Router();
-
+var moment = require("moment");
 const userDB = require("../db/userDB");
-
+const bookDB = require("../db/bookDB");
 router.get("/getUsers", (req, res) => {
   const query = {
     TableName: "userTable"
@@ -67,11 +67,30 @@ router.post("/assign/", (req, res) => {
     ExpressionAttributeValues: reqData
   };
 
-  userDB.updateUser(query, (statusCode, data) => {
+  let bookData = {};
+  bookData[":issuedAt"] = moment().format("DD-MM-YYYY");
+  bookData[":issuedTo"] = req.body.user;
+  bookData[":issuedTill"] = moment(
+    moment(bookData[":issuedAt"], "DD-MM-YYYY").add(60, "days")
+  ).format("DD-MM-YYYY");
+  bookData[":availability"]=false
+
+  let bookQuery = {
+    TableName: "booksTable",
+    Key: { bookId: req.body.assign },
+    UpdateExpression: `set issuedAt=:issuedAt, issuedTo=:issuedTo, issuedTill=:issuedTill`,
+    ExpressionAttributeValues: bookData
+  };
+
+  userDB.updateUser(query, (statusCode, users) => {
     if (statusCode !== 200)
       return res.status(400).send({ err: "Fail to assign the book " });
-    console.log("user data", data);
-    res.status(200).send(data);
+    console.log("user data", users, moment().format("YYYY-MM-DD"));
+    bookDB.updateBook(bookQuery, (statusCode, books) => {
+      if (statusCode !== 200)
+        return res.status(400).send({ err: "Fail to assign the book " });
+      res.send({ user: users, books: books });
+    });
   });
 });
 
