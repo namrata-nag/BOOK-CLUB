@@ -12,9 +12,8 @@ let db = new AWS.DynamoDB();
 const dbQuery = {};
 dbQuery.getUsersData = (query, callback) => {
   docClient.scan(query, (err, data) => {
-    console.log("svhggdcvghdvc", data, err);
     if (err) {
-      return callback(400, { error: "something is error" });
+      return callback(400, { error: "Unable to fetch the User List" });
     }
 
     return callback(200, data);
@@ -24,7 +23,7 @@ dbQuery.getUsersData = (query, callback) => {
 dbQuery.getUser = (query, callback) => {
   return docClient.get(query, (err, data) => {
     if (err) {
-      return callback(400, { error: "something is error1" });
+      return callback(400, { error: "Unable to fetch the User Data" });
     }
     return callback(200, data);
   });
@@ -33,7 +32,7 @@ dbQuery.getUser = (query, callback) => {
 dbQuery.addUser = (query, callback) => {
   db.putItem(query, (err, data) => {
     if (err) {
-      return callback(400, { error: "something is error2" });
+      return callback(400, { error: "Unable to add New User" });
     }
     return callback(200, data);
   });
@@ -41,9 +40,8 @@ dbQuery.addUser = (query, callback) => {
 
 dbQuery.updateUser = (query, callback) => {
   return docClient.update(query, (err, data) => {
-    console.log("bfhbfhvrfhvrfhr", err, data);
     if (err) {
-      return callback(400, { error: "something is error3" });
+      return callback(400, { error: "Unable to update user data" });
     }
     return callback(200, data);
   });

@@ -16,7 +16,6 @@ router.post("/getBooks", (req, res) => {
   let bookQuery = {
     TableName: "booksTable"
   };
-  console.log("2 knjkjkbjbkj");
   userDB.getUser(userQuery, (statusCode, userData) => {
     if (statusCode != 200) res.send(statusCode);
     const user = userData["Item"];
@@ -52,17 +51,17 @@ router.post("/addBook", (req, res) => {
 });
 
 router.patch("/updateBook/:id", (req, res) => {
-  console.log("svdhg", req.body, req.params.id);
   const updateValue = req.body;
   let UpdateExpression = serializeQuery.generateUpdateExpression(req.body);
-  let ExpressionAttributeValues = serializeQuery.generateExpressionValue(req.body);
+  let ExpressionAttributeValues = serializeQuery.generateExpressionValue(
+    req.body
+  );
   const query = {
     TableName: "booksTable",
     Key: { bookId: parseInt(req.params.id) },
     UpdateExpression: `set ${UpdateExpression}`,
     ExpressionAttributeValues: ExpressionAttributeValues
   };
-  console.log("vhehvdfevfve", query);
   bookDB.updateBook(query, (statusCode, data) => {
     if (statusCode != 200) return res.sendStatus(statusCode);
     res.sendStatus(statusCode);

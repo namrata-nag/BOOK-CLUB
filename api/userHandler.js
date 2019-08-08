@@ -7,7 +7,7 @@ const serializeQuery = require("./util.js");
 
 router.get("/getUsers", (req, res) => {
   const query = {
-    TableName: "userTable",
+    TableName: "userTable"
   };
   userDB.getUsersData(query, (statusCode, data) => {
     res.send(data);
@@ -18,8 +18,8 @@ router.post("/getUser", (req, res) => {
   const query = {
     TableName: "userTable",
     Key: {
-      user: req.body.user,
-    },
+      user: req.body.user
+    }
   };
   userDB.getUser(query, (statusCode, data) => {
     let arr = [];
@@ -33,15 +33,14 @@ router.post("/addUser", (req, res) => {
     TableName: "userTable",
     Item: {
       user: { S: req.body.user },
-      role: { N: "2" },
-    },
+      role: { N: "2" }
+    }
   };
   userDB.addUser(query, (statusCode, data) => {
     res.sendStatus(statusCode, data);
   });
 });
 router.patch("/updateUser/:id", (req, res) => {
-  console.log("svdhg", req.body, req.params.id);
   const updateValue = req.body;
   let UpdateExpression = serializeQuery.generateUpdateExpression(req.body);
   let ExpressionAttributeValues = serializeQuery.generateExpressionValue(
@@ -51,45 +50,42 @@ router.patch("/updateUser/:id", (req, res) => {
     TableName: "userTable",
     Key: { user: req.params.id },
     UpdateExpression: `set ${UpdateExpression}`,
-    ExpressionAttributeValues: ExpressionAttributeValues,
+    ExpressionAttributeValues: ExpressionAttributeValues
   };
-  console.log("vhehvdfevfve", query);
   userDB.updateUser(query, (statusCode, data) => {
     if (statusCode != 200) return res.sendStatus(statusCode);
     res.sendStatus(statusCode);
   });
 });
 router.post("/assign/", (req, res) => {
-  console.log("nfjbfjhbwhjb");
   let reqData = {};
-  reqData[":assign"] = req.body.assign;
+  reqData[":assigned_book"] = req.body.assigned_book;
   reqData[":requestQueue"] = [];
   let query = {
     TableName: "userTable",
     Key: { user: req.body.user },
-    UpdateExpression: `set assign=:assign, requestQueue=:requestQueue`,
-    ExpressionAttributeValues: reqData,
+    UpdateExpression: `set assigned_book=:assigned_book, requestQueue=:requestQueue`,
+    ExpressionAttributeValues: reqData
   };
 
   let bookData = {};
-  bookData[":issuedAt"] = moment().format("DD-MM-YYYY");
-  bookData[":issuedTo"] = req.body.user;
-  bookData[":issuedTill"] = moment(
-    moment(bookData[":issuedAt"], "DD-MM-YYYY").add(60, "days")
+  bookData[":issued_on"] = moment().format("DD-MM-YYYY");
+  bookData[":issued_to"] = req.body.user;
+  bookData[":issued_till"] = moment(
+    moment(bookData[":issued_on"], "DD-MM-YYYY").add(60, "days")
   ).format("DD-MM-YYYY");
   bookData[":availability"] = false;
 
   let bookQuery = {
     TableName: "booksTable",
-    Key: { bookId: req.body.assign },
-    UpdateExpression: `set issuedAt=:issuedAt, issuedTo=:issuedTo, issuedTill=:issuedTill`,
-    ExpressionAttributeValues: bookData,
+    Key: { bookId: req.body.assigned_book },
+    UpdateExpression: `set issued_on=:issued_on, issued_to=:issued_to, issued_till=:issued_till ,availability=:availability`,
+    ExpressionAttributeValues: bookData
   };
 
   userDB.updateUser(query, (statusCode, users) => {
     if (statusCode !== 200)
       return res.status(400).send({ err: "Fail to assign the book " });
-    console.log("user data", users, moment().format("YYYY-MM-DD"));
     bookDB.updateBook(bookQuery, (statusCode, books) => {
       if (statusCode !== 200)
         return res.status(400).send({ err: "Fail to assign the book " });
@@ -100,7 +96,7 @@ router.post("/assign/", (req, res) => {
 
 router.post("/requestBook", (req, res) => {
   const query2 = {
-    TableName: "userTable",
+    TableName: "userTable"
   };
   userDB.getUsersData(query2, (statusCode, data) => {
     const users = data.Items;
@@ -109,20 +105,23 @@ router.post("/requestBook", (req, res) => {
     if (queue && queue.length === 3) {
       res.status(400).send({ err: "Max Request Limit Reached" });
     } else {
-      queue = queue.filter(i => i!==req.body.bookId);
+      queue = queue.filter(i => i !== req.body.bookId);
       queue.push(parseInt(req.body.bookId));
     }
     let user = req.body.user;
-    let UpdateExpression = serializeQuery.generateUpdateExpression({requestQueue: queue});
-    let ExpressionAttributeValues = serializeQuery.generateExpressionValue({requestQueue: queue});
-    console.log("data", queue, UpdateExpression, ExpressionAttributeValues);
+    let UpdateExpression = serializeQuery.generateUpdateExpression({
+      requestQueue: queue
+    });
+    let ExpressionAttributeValues = serializeQuery.generateExpressionValue({
+      requestQueue: queue
+    });
     const query = {
       TableName: "userTable",
       Key: {
-        user,
+        user
       },
       UpdateExpression: `set ${UpdateExpression}`,
-      ExpressionAttributeValues: ExpressionAttributeValues,
+      ExpressionAttributeValues: ExpressionAttributeValues
     };
 
     userDB.updateUser(query, (statusCode, users) => {
@@ -134,29 +133,40 @@ router.post("/requestBook", (req, res) => {
 });
 
 router.post("/returnBook", (req, res) => {
-  let bookPayload = {"availability": true,"issuedTo": null, "issuedAt": null, "issuedTill": null};
-  let UpdateExpressionBook = serializeQuery.generateUpdateExpression(bookPayload);
-  let ExpressionAttributeValuesBook = serializeQuery.generateExpressionValue(bookPayload);
-  let userPayload = {"assign": null};
-  let UpdateExpressionUser = serializeQuery.generateUpdateExpression(userPayload);
-  let ExpressionAttributeValuesUser = serializeQuery.generateExpressionValue(userPayload);
-  console.log("abhisar book", bookPayload, UpdateExpressionBook, ExpressionAttributeValuesBook, req.body.bookId);
-  console.log("abhisar user", userPayload, UpdateExpressionUser, ExpressionAttributeValuesUser, req.body.user);
+  let bookPayload = {
+    availability: true,
+    issued_to: null,
+    issued_on: null,
+    issued_till: null
+  };
+  let UpdateExpressionBook = serializeQuery.generateUpdateExpression(
+    bookPayload
+  );
+  let ExpressionAttributeValuesBook = serializeQuery.generateExpressionValue(
+    bookPayload
+  );
+  let userPayload = { assigned_book: 0 };
+  let UpdateExpressionUser = serializeQuery.generateUpdateExpression(
+    userPayload
+  );
+  let ExpressionAttributeValuesUser = serializeQuery.generateExpressionValue(
+    userPayload
+  );
   const queryBook = {
     TableName: "booksTable",
     Key: {
-      bookId: parseInt(req.body.bookId),
+      bookId: parseInt(req.body.bookId)
     },
     UpdateExpression: `set ${UpdateExpressionBook}`,
-    ExpressionAttributeValues: ExpressionAttributeValuesBook,
+    ExpressionAttributeValues: ExpressionAttributeValuesBook
   };
   const queryUser = {
     TableName: "userTable",
     Key: {
-      user: req.body.user,
+      user: req.body.user
     },
     UpdateExpression: `set ${UpdateExpressionUser}`,
-    ExpressionAttributeValues: ExpressionAttributeValuesUser,
+    ExpressionAttributeValues: ExpressionAttributeValuesUser
   };
 
   userDB.updateUser(queryUser, (statusCode, users) => {
@@ -166,7 +176,7 @@ router.post("/returnBook", (req, res) => {
   bookDB.updateBook(queryBook, (statusCode, books) => {
     if (statusCode !== 200)
       return res.status(400).send({ err: "Fail to update book" });
-      res.send({ message: "Success" });
+    res.send({ message: "Success" });
   });
 });
 

@@ -13,7 +13,7 @@ const dbQuery = {};
 dbQuery.getBookData = (query, callback) => {
   return docClient.scan(query, (err, data) => {
     if (err) {
-      return callback(400, { error: "something is error" });
+      return callback(400, { error: "Unable to fetch Book List" });
     }
     return callback(200, data);
   });
@@ -21,7 +21,7 @@ dbQuery.getBookData = (query, callback) => {
 dbQuery.addBook = (query, callback) => {
   return docClient.batchWrite(query, (err, data) => {
     if (err) {
-      return callback(400, { error: "something is error" });
+      return callback(400, { error: "Unable to add Book" });
     }
     return callback(200, data);
   });
@@ -29,9 +29,8 @@ dbQuery.addBook = (query, callback) => {
 
 dbQuery.updateBook = (query, callback) => {
   return docClient.update(query, (err, data) => {
-    console.log("bfhbfhvrfhvrfhr", err, data);
     if (err) {
-      return callback(400, { error: "something is error" });
+      return callback(400, { error: "Unable to update the book Table" });
     }
     return callback(200, data);
   });
