@@ -33,7 +33,9 @@ router.post("/addUser", (req, res) => {
     TableName: "userTable",
     Item: {
       user: { S: req.body.user },
-      role: { N: "2" }
+      role: { N: "2" },
+      assigned_book: { N: 0 },
+      requestQueue: []
     }
   };
   userDB.addUser(query, (statusCode, data) => {
