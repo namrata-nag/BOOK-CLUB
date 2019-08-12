@@ -29,16 +29,17 @@ router.post("/getUser", (req, res) => {
 });
 
 router.post("/addUser", (req, res) => {
+  console.log("add user",req.body)
   const query = {
     TableName: "userTable",
     Item: {
       user: { S: req.body.user },
       role: { N: "2" },
-      assigned_book: { N: 0 },
-      requestQueue: []
+      assigned_book: { N: "0" },
     }
   };
   userDB.addUser(query, (statusCode, data) => {
+    console.log("bacbsh",data)
     res.sendStatus(statusCode, data);
   });
 });
