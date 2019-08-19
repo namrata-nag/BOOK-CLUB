@@ -29,7 +29,6 @@ router.post("/getUser", (req, res) => {
 });
 
 router.post("/addUser", (req, res) => {
-  console.log("add user",req.body)
   const query = {
     TableName: "userTable",
     Item: {
@@ -39,7 +38,6 @@ router.post("/addUser", (req, res) => {
     }
   };
   userDB.addUser(query, (statusCode, data) => {
-    console.log("bacbsh",data)
     res.sendStatus(statusCode, data);
   });
 });
