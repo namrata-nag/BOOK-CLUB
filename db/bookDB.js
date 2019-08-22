@@ -4,7 +4,7 @@ let express = require("express");
 AWS.config.update({
   region: process.env.REGION,
   accessKeyId: process.env.ACCESSKEYID,
-  secretAccessKey: process.env.SECRETACCESSKEY,
+  secretAccessKey: process.env.SECRETACCESSKEY
 });
 
 let docClient = new AWS.DynamoDB.DocumentClient();
@@ -26,11 +26,28 @@ dbQuery.addBook = (query, callback) => {
     return callback(200, data);
   });
 };
+dbQuery.getOneBook = (query, callback) => {
+  return docClient.get(query, (err, data) => {
+    if (err) {
+      return callback(400, { error: "Unable to fetch Book List" });
+    }
+    return callback(200, data);
+  });
+};
 
 dbQuery.updateBook = (query, callback) => {
   return docClient.update(query, (err, data) => {
     if (err) {
       return callback(400, { error: "Unable to update the book Table" });
+    }
+    return callback(200, data);
+  });
+};
+
+dbQuery.deleteBook = (query, callback) => {
+  return docClient.delete(query, (err, data) => {
+    if (err) {
+      return callback(400, { error: "Unable to delete the book Table" });
     }
     return callback(200, data);
   });
