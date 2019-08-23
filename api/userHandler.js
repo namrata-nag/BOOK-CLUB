@@ -138,7 +138,9 @@ router.post("/returnBook", (req, res) => {
     availability: true,
     issued_to: null,
     issued_on: null,
-    issued_till: null
+    issued_till: null,
+    returned_on: moment().format("DD-MM-YYYY"),
+    last_issued_to: req.body.user,
   };
   let UpdateExpressionBook = serializeQuery.generateUpdateExpression(
     bookPayload
