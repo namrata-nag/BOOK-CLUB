@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+var moment = require("moment");
 const bookDB = require("../db/bookDB");
 const userDB = require("../db/userDB");
 const serializeQuery = require("./util.js");
@@ -10,11 +11,11 @@ router.post("/getBooks", (req, res) => {
   const userQuery = {
     TableName: "userTable",
     Key: {
-      user: reqData.id
-    }
+      user: reqData.id,
+    },
   };
   let bookQuery = {
-    TableName: "booksTable"
+    TableName: "booksTable",
   };
   userDB.getUser(userQuery, (statusCode, userData) => {
     if (statusCode != 200) res.send(statusCode);
@@ -22,7 +23,7 @@ router.post("/getBooks", (req, res) => {
     if (user.role == 2) {
       bookQuery = {
         TableName: "booksTable",
-        AttributesToGet: ["bookId", "availability", "bookName"]
+        AttributesToGet: ["bookId", "availability", "bookName"],
       };
     }
     bookDB.getBookData(bookQuery, (statusCode, bookData) => {
@@ -39,11 +40,11 @@ router.post("/addBook", (req, res) => {
         //params for the topics item
         {
           PutRequest: {
-            Item: req
-          }
-        }
-      ]
-    }
+            Item: req,
+          },
+        },
+      ],
+    },
   };
   bookDB.addBook(query, (statusCode, data) => {
     res.sendStatus(404);
@@ -54,7 +55,7 @@ router.post("/manageBook", (req, res) => {
   console.log("hbfhsvfhgrvh", req);
   const query = {
     TableName: "booksTable",
-    Key: { bookId: parseInt(req.body.bookId) }
+    Key: { bookId: parseInt(req.body.bookId) },
   };
   bookDB.getOneBook(query, (statusCode, data) => {
     if (Object.keys(data).length !== 0) {
@@ -65,7 +66,9 @@ router.post("/manageBook", (req, res) => {
           availability: true,
           issued_to: null,
           issued_on: null,
-          issued_till: null
+          issued_till: null,
+          returned_on: moment().format("DD-MM-YYYY"),
+          last_issued_to: data.issued_to,
         };
         let UpdateExpressionBook = serializeQuery.generateUpdateExpression(
           bookPayload
@@ -83,18 +86,18 @@ router.post("/manageBook", (req, res) => {
         const queryBook = {
           TableName: "booksTable",
           Key: {
-            bookId: parseInt(req.body.bookId)
+            bookId: parseInt(req.body.bookId),
           },
           UpdateExpression: `set ${UpdateExpressionBook}`,
-          ExpressionAttributeValues: ExpressionAttributeValuesBook
+          ExpressionAttributeValues: ExpressionAttributeValuesBook,
         };
         const queryUser = {
           TableName: "userTable",
           Key: {
-            user
+            user,
           },
           UpdateExpression: `set ${UpdateExpressionUser}`,
-          ExpressionAttributeValues: ExpressionAttributeValuesUser
+          ExpressionAttributeValues: ExpressionAttributeValuesUser,
         };
 
         userDB.updateUser(queryUser, (statusCode, users) => {
@@ -114,15 +117,15 @@ router.post("/manageBook", (req, res) => {
             //params for the topics item
             {
               PutRequest: {
-                Item: req.body
-              }
-            }
-          ]
-        }
+                Item: req.body,
+              },
+            },
+          ],
+        },
       };
       bookDB.addBook(addQuery, (statusCode, data) => {
         if (statusCode !== 200)
-            return res.status(400).send({ err: "Fail to add book" });
+          return res.status(400).send({ err: "Fail to add book" });
         res.send({ message: "Success" });
       });
     }
@@ -139,7 +142,7 @@ router.patch("/updateBook/:id", (req, res) => {
     TableName: "booksTable",
     Key: { bookId: parseInt(req.params.id) },
     UpdateExpression: `set ${UpdateExpression}`,
-    ExpressionAttributeValues: ExpressionAttributeValues
+    ExpressionAttributeValues: ExpressionAttributeValues,
   };
   bookDB.updateBook(query, (statusCode, data) => {
     if (statusCode != 200) return res.sendStatus(statusCode);
@@ -150,7 +153,7 @@ router.patch("/updateBook/:id", (req, res) => {
 router.delete("/deleteBook", (req, res) => {
   const query = {
     TableName: "booksTable",
-    Key: { bookId: parseInt(req.body.bookId) }
+    Key: { bookId: parseInt(req.body.bookId) },
   };
   bookDB.deleteBook(query, (statusCode, data) => {
     if (statusCode != 200) return res.sendStatus(statusCode);
